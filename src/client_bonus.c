@@ -6,18 +6,15 @@
 /*   By: acastejo <acastejo@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/02 13:01:41 by acastejo          #+#    #+#             */
-/*   Updated: 2024/04/13 19:06:02 by acastejo         ###   ########.fr       */
+/*   Updated: 2024/04/19 18:26:37 by acastejo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minitalk.h"
-
 #include <stdio.h>
 #include <limits.h>
 #include "../inc/minitalk.h"
 #include "../ftPrintf/ft_printf.h"
-
-int	g_check = 1;
 
 pid_t	ft_atoi(char *num)
 {
@@ -44,37 +41,51 @@ pid_t	ft_atoi(char *num)
 	return (n * sign);
 }
 
+void	ft_feedback(int signal)
+{
+	if (signal == SIGUSR1)
+		ft_printf("Message sended\n");
+}
+
 void	ft_encrypt(unsigned char c, pid_t pid)
 {
 	unsigned char	bit;
 	int				octa;
-	int				flag;
+	static int		flag;
 
+	flag = 0;
+	if (!flag)
+	{
+		signal(SIGUSR1, ft_feedback);
+		signal(SIGUSR2, ft_feedback);
+		flag = 1;
+	}
 	octa = 7;
 	while (octa >= 0)
 	{
-		flag = 1;
 		if (c >> octa & 1)
 		{
-			flag = 0;
 			if (kill(pid, SIGUSR1) == -1)
 				exit (ft_printf("Invalid pid\n"));
+			pause();
 		}
 		else
 		{
-			flag = 0;
-			if (kill(pid, SIGUSR1) == -1)
+			if (kill(pid, SIGUSR2) == -1)
 				exit (ft_printf("Invalid pid\n"));
+			pause();
 		}
 		octa--;
-		usleep(350);
-		// if (octa > 0)
-		// {
-		// 	while (flag)
-		// 		pause ();
-		// }
+		usleep(50);
+	//	usleep(200);
+		// signal(SIGUSR2, ft_feedback);
+		// signal(SIGUSR1, ft_feedback);
+		// if (octa!= 0)
+		// 	pause();
+		// usleep(50);
 	}
 }
+
 
 int	main(int argc, char **argv)
 {
