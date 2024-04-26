@@ -6,39 +6,11 @@
 /*   By: acastejo <acastejo@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/02 13:01:37 by acastejo          #+#    #+#             */
-/*   Updated: 2024/04/13 18:59:55 by acastejo         ###   ########.fr       */
+/*   Updated: 2024/04/23 13:00:04 by acastejo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <limits.h>
 #include "../inc/minitalk.h"
-#include "../ftPrintf/ft_printf.h"
-
-pid_t	ft_atoi(char *num)
-{
-	long long int	n;
-	int				i;
-	int				sign;
-
-	n = 0;
-	i = 0;
-	sign = 1;
-	if (num[i] == '-' || num[i] == '+')
-	{
-		if (num[i] == '-')
-			sign = -1;
-		i++;
-	}
-	while (num[i] >= '0' && num[i] <= '9')
-	{
-		n = n * 10 + num[i] - '0';
-		i++;
-	}
-	if (n < 0 || n > INT_MAX)
-		return (-1);
-	return (n * sign);
-}
 
 void	ft_encrypt(unsigned char c, pid_t pid)
 {
