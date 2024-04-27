@@ -6,23 +6,22 @@
 /*   By: acastejo <acastejo@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/02 13:01:01 by acastejo          #+#    #+#             */
-/*   Updated: 2024/04/26 20:32:45 by acastejo         ###   ########.fr       */
+/*   Updated: 2024/04/27 17:36:13 by acastejo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minitalk.h"
 
-int	g_size = 0;
+pid_t	g_clientpid;
 
-void	ft_message(pid_t pid)
+void	ft_message(char *msg, bool **message)
 {
-	ft_printf("devolución de la señal\n");
-	usleep(50);
-	kill(pid, SIGUSR1);
-	g_size = 0;
+	ft_printf("%s\n", msg);
+	message = false;
+	kill(g_clientpid, SIGUSR1);
 }
 
-void	ft_sizemem(int signal, pid_t pid)
+int	ft_sizemem(int signal)
 {
 	static int	bit;
 	static char	c;
@@ -41,26 +40,28 @@ void	ft_sizemem(int signal, pid_t pid)
 		str[i++] = c;
 		bit = -1;
 		if (c == 0)
-			g_size = ft_atoi(str);
+		{
+			i = ft_atoi(str);
+			return (i);
+		}
 		c = 0;
 	}
 	bit++;
-	kill(pid, SIGUSR2);
+	return (0);
 }
 
-void	ft_locatemsg(int signal, pid_t pid)
+void	ft_locatemsg(int signal, int size, bool *message)
 {
 	static char				*msg;
-	static int				i;
+	static unsigned int		i;
 	static unsigned char	letter;
 	static int				pos;
 
 	if (!msg)
 	{
-		msg = (char *)ft_calloc(g_size + 1, sizeof(char));
+		msg = (char *)ft_calloc(size + 1, sizeof(char));
 		i = 0;
-		letter = 0;
-		pos = 0;
+		pos = -1;
 	}
 	if (signal == SIGUSR1)
 		letter = letter << 1 | 1;
@@ -68,34 +69,36 @@ void	ft_locatemsg(int signal, pid_t pid)
 		letter = letter << 1;
 	if (pos == 7)
 	{
-		ft_printf("%i\n", letter);
 		msg[i] = letter;
 		i++;
 		pos = -1;
 		if (letter == 0)
 		{
-			write(1, msg, g_size);
-			write(1, "\n", 1);
-			ft_message(pid);
+			ft_message(msg, &message);
+			free(msg);
+			msg = NULL;
 		}
 		letter = 0;
 	}
-	ft_printf("|%c|\n", letter);
 	pos++;
-	usleep(5);
-	kill(pid, SIGUSR2);
 }
 
 void	decod(int signal, siginfo_t *info, void *context)
 {
+	static bool	message;
+	int			size;
+
 	(void)context;
-	if (g_size == 0)
-		ft_sizemem(signal, info->si_pid);
-	if (g_size != 0)
+	if (g_clientpid != info->si_pid)
+		g_clientpid = info->si_pid;
+	if (!message)
 	{
-		ft_printf("El tamaño del string va a ser: %i\n", g_size);
-		ft_locatemsg(signal, info->si_pid);
+		size = ft_sizemem(signal);
+		if (size > 0)
+			message = true;
 	}
+	if (message)
+		ft_locatemsg(signal, size, &message);
 }
 
 int	main(void)
@@ -109,6 +112,10 @@ int	main(void)
 	sigaction(SIGUSR1, &sa, NULL);
 	sigaction(SIGUSR2, &sa, NULL);
 	while (1)
+	{
 		pause ();
+		usleep(5);
+		kill(g_clientpid, SIGUSR2);
+	}
 	return (0);
 }

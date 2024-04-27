@@ -6,7 +6,7 @@
 /*   By: acastejo <acastejo@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/02 13:01:41 by acastejo          #+#    #+#             */
-/*   Updated: 2024/04/26 20:07:52 by acastejo         ###   ########.fr       */
+/*   Updated: 2024/04/27 17:14:30 by acastejo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void	ft_encrypt(unsigned char c, pid_t pid)
 		}
 		octa--;
 		pause();
-		usleep(100);
+		usleep(5);
 	}
 }
 
@@ -52,8 +52,6 @@ void	ft_sendlen(int len, pid_t pid)
 		str++;
 	}
 	ft_encrypt(0, pid);
-	pause();
-	usleep(5);
 }
 
 void	ft_sendmsg(char const *str, pid_t pid)
@@ -64,16 +62,14 @@ void	ft_sendmsg(char const *str, pid_t pid)
 		str++;
 	}
 	ft_encrypt(0, pid);
-	pause();
-	usleep (5);
 }
 
 int	main(int argc, char **argv)
 {
 	int	len;
 
-	signal(SIGUSR1, ft_feedback);
-	signal(SIGUSR2, ft_feedback);
+	signal(SIGUSR1, ft_feedback);  //probar con sigaction
+	signal(SIGUSR2, ft_feedback);  //probar con sigaction
 	if (argc == 3)
 	{
 		if (ft_atoi(argv[1]) <= 0)
@@ -82,11 +78,8 @@ int	main(int argc, char **argv)
 		{
 			len = ft_strlen(argv[2]);
 			ft_sendlen(len, ft_atoi(argv[1]));
-			usleep(20);
-			ft_printf("caracteres enviados: %i\n", len);
 			ft_sendmsg(argv[2], ft_atoi(argv[1]));
 			ft_printf("Characters sended: %i\n", len);
-			pause ();
 			return (0);
 		}
 	}
