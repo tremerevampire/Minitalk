@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minitalk.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acastejo <acastejo@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: acastejo <acastejo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/02 12:37:20 by acastejo          #+#    #+#             */
-/*   Updated: 2024/04/13 12:14:15 by acastejo         ###   ########.fr       */
+/*   Updated: 2024/05/03 13:04:59 by acastejo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,10 @@
 
 # include <signal.h>
 # include <unistd.h>
+# include <stdbool.h>
 # include <stdlib.h>
+# include "../../ftPrintf/ft_printf.h"
+# include "../../libft/libft.h"
 
 typedef struct s_bit
 {
