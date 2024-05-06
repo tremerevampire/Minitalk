@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client_bonus.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acastejo <acastejo@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: acastejo <acastejo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/02 13:01:41 by acastejo          #+#    #+#             */
-/*   Updated: 2024/04/27 17:14:30 by acastejo         ###   ########.fr       */
+/*   Updated: 2024/05/06 14:07:06 by acastejo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void	ft_encrypt(unsigned char c, pid_t pid)
 		}
 		octa--;
 		pause();
-		usleep(5);
+		usleep(25);
 	}
 }
 
@@ -68,8 +68,8 @@ int	main(int argc, char **argv)
 {
 	int	len;
 
-	signal(SIGUSR1, ft_feedback);  //probar con sigaction
-	signal(SIGUSR2, ft_feedback);  //probar con sigaction
+	signal(SIGUSR1, ft_feedback);
+	signal(SIGUSR2, ft_feedback);
 	if (argc == 3)
 	{
 		if (ft_atoi(argv[1]) <= 0)

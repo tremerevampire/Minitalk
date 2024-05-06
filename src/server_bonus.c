@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server_bonus.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acastejo <acastejo@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: acastejo <acastejo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/02 13:01:01 by acastejo          #+#    #+#             */
-/*   Updated: 2024/04/27 17:36:13 by acastejo         ###   ########.fr       */
+/*   Updated: 2024/05/06 14:07:12 by acastejo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,9 @@
 
 pid_t	g_clientpid;
 
-void	ft_message(char *msg, bool **message)
+void	ft_message(char *msg)
 {
 	ft_printf("%s\n", msg);
-	message = false;
 	kill(g_clientpid, SIGUSR1);
 }
 
@@ -42,6 +41,8 @@ int	ft_sizemem(int signal)
 		if (c == 0)
 		{
 			i = ft_atoi(str);
+			bit = 0;
+			str[0] = 0;
 			return (i);
 		}
 		c = 0;
@@ -50,7 +51,7 @@ int	ft_sizemem(int signal)
 	return (0);
 }
 
-void	ft_locatemsg(int signal, int size, bool *message)
+void	ft_locatemsg(int signal, int size)
 {
 	static char				*msg;
 	static unsigned int		i;
@@ -74,7 +75,7 @@ void	ft_locatemsg(int signal, int size, bool *message)
 		pos = -1;
 		if (letter == 0)
 		{
-			ft_message(msg, &message);
+			ft_message(msg);
 			free(msg);
 			msg = NULL;
 		}
@@ -90,7 +91,11 @@ void	decod(int signal, siginfo_t *info, void *context)
 
 	(void)context;
 	if (g_clientpid != info->si_pid)
+	{	
 		g_clientpid = info->si_pid;
+		size = 0;
+		message = false;
+	}
 	if (!message)
 	{
 		size = ft_sizemem(signal);
@@ -98,7 +103,10 @@ void	decod(int signal, siginfo_t *info, void *context)
 			message = true;
 	}
 	if (message)
-		ft_locatemsg(signal, size, &message);
+	{
+		ft_locatemsg(signal, size);
+		size = 0;
+	}
 }
 
 int	main(void)
@@ -107,14 +115,12 @@ int	main(void)
 
 	ft_printf("PID: [ %i ] \n", getpid());
 	sa.sa_sigaction = decod;
-	sa.sa_mask = 0;
-	sa.sa_flags = 0;
 	sigaction(SIGUSR1, &sa, NULL);
 	sigaction(SIGUSR2, &sa, NULL);
 	while (1)
 	{
 		pause ();
-		usleep(5);
+		usleep(25);
 		kill(g_clientpid, SIGUSR2);
 	}
 	return (0);
