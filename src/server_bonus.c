@@ -6,107 +6,72 @@
 /*   By: acastejo <acastejo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/02 13:01:01 by acastejo          #+#    #+#             */
-/*   Updated: 2024/05/06 14:07:12 by acastejo         ###   ########.fr       */
+/*   Updated: 2024/05/14 14:43:04 by acastejo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minitalk.h"
 
-pid_t	g_clientpid;
+t_msg	g_msg;
 
-void	ft_message(char *msg)
+void	ft_message(void)
 {
-	ft_printf("%s\n", msg);
-	kill(g_clientpid, SIGUSR1);
+	ft_printf("%s\n", g_msg.str);
+	kill(g_msg.client_pid, SIGUSR1);
+	g_msg.bit = 0;
+	g_msg.c = 0;
+	g_msg.i = 0;
+	free(g_msg.str);
+	g_msg.str = NULL;
+	g_msg.message = 0;
 }
 
-int	ft_sizemem(int signal)
+void	ft_sizemem(int signal)
 {
-	static int	bit;
-	static char	c;
-	static char	*aux;
-	static char	str[7];
-	static int	i;
-
 	if (signal == SIGUSR1)
-		c = c << 1 | 1;
+		g_msg.size = g_msg.size << 1 | 1;
 	else if (signal == SIGUSR2)
-		c = c << 1;
-	if (bit == 7)
+		g_msg.size = g_msg.size << 1;
+	g_msg.bit++;
+	if (g_msg.bit == 32)
 	{
-		if (!str[0])
-			i = 0;
-		str[i++] = c;
-		bit = -1;
-		if (c == 0)
-		{
-			i = ft_atoi(str);
-			bit = 0;
-			str[0] = 0;
-			return (i);
-		}
-		c = 0;
+		g_msg.bit = 0;
+		g_msg.message = 1;
 	}
-	bit++;
-	return (0);
 }
 
-void	ft_locatemsg(int signal, int size)
+void	ft_locatemsg(int signal)
 {
-	static char				*msg;
-	static unsigned int		i;
-	static unsigned char	letter;
-	static int				pos;
-
-	if (!msg)
-	{
-		msg = (char *)ft_calloc(size + 1, sizeof(char));
-		i = 0;
-		pos = -1;
-	}
+	if (!g_msg.str)
+		g_msg.str = (char *)ft_calloc(g_msg.size + 1, sizeof(char));
 	if (signal == SIGUSR1)
-		letter = letter << 1 | 1;
+		g_msg.c = g_msg.c << 1 | 0x01;
 	else if (signal == SIGUSR2)
-		letter = letter << 1;
-	if (pos == 7)
+		g_msg.c = g_msg.c << 1;
+	if (g_msg.bit++ == 7)
 	{
-		msg[i] = letter;
-		i++;
-		pos = -1;
-		if (letter == 0)
-		{
-			ft_message(msg);
-			free(msg);
-			msg = NULL;
-		}
-		letter = 0;
+		g_msg.str[g_msg.i] = g_msg.c;
+		g_msg.bit = 0;
+		g_msg.c = 0;
+		g_msg.i++;
+		if (g_msg.i == g_msg.size)
+			ft_message();
 	}
-	pos++;
 }
 
-void	decod(int signal, siginfo_t *info, void *context)
+void	ft_decod(int signal, siginfo_t *info, void *context)
 {
-	static bool	message;
-	int			size;
-
 	(void)context;
-	if (g_clientpid != info->si_pid)
-	{	
-		g_clientpid = info->si_pid;
-		size = 0;
-		message = false;
-	}
-	if (!message)
+	if (g_msg.client_pid != info->si_pid)
 	{
-		size = ft_sizemem(signal);
-		if (size > 0)
-			message = true;
+		g_msg.client_pid = info->si_pid;
+		g_msg.size = 0;
+		g_msg.message = 0;
 	}
-	if (message)
-	{
-		ft_locatemsg(signal, size);
-		size = 0;
-	}
+	if (!g_msg.message)
+		ft_sizemem(signal);
+	else if (g_msg.message)
+		ft_locatemsg(signal);
 }
 
 int	main(void)
@@ -114,14 +79,14 @@ int	main(void)
 	struct sigaction	sa;
 
 	ft_printf("PID: [ %i ] \n", getpid());
-	sa.sa_sigaction = decod;
+	sa.sa_sigaction = ft_decod;
 	sigaction(SIGUSR1, &sa, NULL);
 	sigaction(SIGUSR2, &sa, NULL);
 	while (1)
 	{
 		pause ();
-		usleep(25);
-		kill(g_clientpid, SIGUSR2);
+		usleep(50);
+		kill(g_msg.client_pid, SIGUSR2);
 	}
 	return (0);
 }

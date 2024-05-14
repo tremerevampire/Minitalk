@@ -6,26 +6,28 @@
 /*   By: acastejo <acastejo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/02 13:01:41 by acastejo          #+#    #+#             */
-/*   Updated: 2024/05/06 14:07:06 by acastejo         ###   ########.fr       */
+/*   Updated: 2024/05/14 14:43:58 by acastejo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minitalk.h"
 
-void	ft_feedback(int signal)
+void	ft_feedback(int signal, siginfo_t *info, void *context)
 {
+	(void)context;
+	(void)info;
 	if (signal == SIGUSR1)
 		ft_printf("Message sended\n");
 }
 
 void	ft_encrypt(unsigned char c, pid_t pid)
 {
-	int				octa;
+	unsigned short	octa;
 
-	octa = 7;
-	while (octa >= 0)
+	octa = 8;
+	while (octa--)
 	{
-		if (c >> octa & 1)
+		if (c >> octa & 0x01)
 		{
 			if (kill(pid, SIGUSR1) == -1)
 				exit (ft_printf("Invalid pid\n"));
@@ -35,41 +37,53 @@ void	ft_encrypt(unsigned char c, pid_t pid)
 			if (kill(pid, SIGUSR2) == -1)
 				exit (ft_printf("Invalid pid\n"));
 		}
-		octa--;
 		pause();
-		usleep(25);
+		usleep(5);
 	}
 }
 
-void	ft_sendlen(int len, pid_t pid)
+void	ft_sendlen(size_t len, pid_t pid)
 {
-	char	*str;
+	unsigned short	bit;
 
-	str = ft_itoa(len);
-	while (*str)
+	bit = 32;
+	while (bit != 0)
 	{
-		ft_encrypt(*str, pid);
-		str++;
+		bit--;
+		if (len >> bit & 1)
+		{
+			if (kill(pid, SIGUSR1) == -1)
+				exit (ft_printf("Invalid pid\n"));
+		}
+		else
+		{
+			if (kill(pid, SIGUSR2) == -1)
+				exit (ft_printf("Invalid pid\n"));
+		}
+		pause ();
 	}
-	ft_encrypt(0, pid);
 }
 
 void	ft_sendmsg(char const *str, pid_t pid)
 {
-	while (*str)
+	int	i;
+
+	i = 0;
+	while (str[i])
 	{
-		ft_encrypt(*str, pid);
-		str++;
+		ft_encrypt(str[i], pid);
+		i++;
 	}
-	ft_encrypt(0, pid);
 }
 
 int	main(int argc, char **argv)
 {
-	int	len;
+	int					len;
+	struct sigaction	sa;
 
-	signal(SIGUSR1, ft_feedback);
-	signal(SIGUSR2, ft_feedback);
+	sa.sa_sigaction = ft_feedback;
+	sigaction(SIGUSR1, &sa, NULL);
+	sigaction(SIGUSR2, &sa, NULL);
 	if (argc == 3)
 	{
 		if (ft_atoi(argv[1]) <= 0)
@@ -79,7 +93,6 @@ int	main(int argc, char **argv)
 			len = ft_strlen(argv[2]);
 			ft_sendlen(len, ft_atoi(argv[1]));
 			ft_sendmsg(argv[2], ft_atoi(argv[1]));
-			ft_printf("Characters sended: %i\n", len);
 			return (0);
 		}
 	}
