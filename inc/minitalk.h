@@ -16,8 +16,8 @@
 # include <signal.h>
 # include <unistd.h>
 # include <stdlib.h>
-# include "../../ftPrintf/ft_printf.h"
-# include "../../libft/libft.h"
+# include "../ftPrintf/ft_printf.h"
+# include "../libft/libft.h"
 
 typedef struct s_msg
 {

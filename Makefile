@@ -16,7 +16,7 @@ OBJSS =			$(SRCSS:.c=.o)
 B_OBJSC =		$(SRCSC_B:.c=.o)
 B_OBJSS =		$(SRCSS_B:.c=.o)
 
-FTLIBFT =		./libft
+FTLIBFT =		./libft/
 LIBFT = 		./libft/libft.a
 
 FTPRINTF =		./ftPrintf

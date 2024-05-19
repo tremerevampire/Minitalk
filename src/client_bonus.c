@@ -38,7 +38,7 @@ void	ft_encrypt(unsigned char c, pid_t pid)
 				exit (ft_printf("Invalid pid\n"));
 		}
 		pause();
-		usleep(200);
+		usleep(50);
 	}
 }
 
@@ -69,11 +69,8 @@ void	ft_sendmsg(char const *str, pid_t pid)
 	int	i;
 
 	i = 0;
-	while (str[i])
-	{
+	while (str[i++])
 		ft_encrypt(str[i], pid);
-		ft_printf("%i\n", i++);
-	}
 }
 
 int	main(int argc, char **argv)

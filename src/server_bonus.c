@@ -43,20 +43,15 @@ void	ft_sizemem(int signal)
 
 void	ft_locatemsg(int signal)
 {
-	static int	j;
 
 	if (!g_msg.str)
-	{
-		j = 0;
 		g_msg.str = (char *)ft_calloc(g_msg.size + 1, sizeof(char));
-	}
 	if (signal == SIGUSR1)
 		g_msg.c = g_msg.c << 1 | 0x01;
 	else if (signal == SIGUSR2)
 		g_msg.c = g_msg.c << 1;
 	if (g_msg.bit++ == 7)
 	{
-		ft_printf("%i\n", j++);
 		g_msg.str[g_msg.i] = g_msg.c;
 		g_msg.bit = 0;
 		g_msg.c = 0;
@@ -93,7 +88,6 @@ int	main(void)
 	while (1)
 	{
 		pause ();
-		//usleep(700);
 		kill(g_msg.client_pid, SIGUSR2);
 	}
 	return (0);

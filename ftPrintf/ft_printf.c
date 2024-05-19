@@ -18,7 +18,7 @@ void	ft_putunsbase(unsigned long long n, char *ind, int *i)
 
 	if (*i == -1)
 		return ;
-	base = ft_strlen(ind);
+	base = ft_strlenprint(ind);
 	if (n >= (unsigned int)base)
 	{
 		ft_putunsbase(n / base, ind, i);
