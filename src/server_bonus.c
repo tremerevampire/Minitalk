@@ -6,7 +6,7 @@
 /*   By: acastejo <acastejo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/02 13:01:01 by acastejo          #+#    #+#             */
-/*   Updated: 2024/05/14 14:43:04 by acastejo         ###   ########.fr       */
+/*   Updated: 2024/05/18 17:24:05 by acastejo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ t_msg	g_msg;
 
 void	ft_message(void)
 {
-	ft_printf("%s\n", g_msg.str);
+	write(1, g_msg.str, g_msg.size);
 	kill(g_msg.client_pid, SIGUSR1);
 	g_msg.bit = 0;
 	g_msg.c = 0;
@@ -24,6 +24,7 @@ void	ft_message(void)
 	free(g_msg.str);
 	g_msg.str = NULL;
 	g_msg.message = 0;
+	g_msg.size = 0;
 }
 
 void	ft_sizemem(int signal)
@@ -42,14 +43,20 @@ void	ft_sizemem(int signal)
 
 void	ft_locatemsg(int signal)
 {
+	static int	j;
+
 	if (!g_msg.str)
+	{
+		j = 0;
 		g_msg.str = (char *)ft_calloc(g_msg.size + 1, sizeof(char));
+	}
 	if (signal == SIGUSR1)
 		g_msg.c = g_msg.c << 1 | 0x01;
 	else if (signal == SIGUSR2)
 		g_msg.c = g_msg.c << 1;
 	if (g_msg.bit++ == 7)
 	{
+		ft_printf("%i\n", j++);
 		g_msg.str[g_msg.i] = g_msg.c;
 		g_msg.bit = 0;
 		g_msg.c = 0;
@@ -72,6 +79,7 @@ void	ft_decod(int signal, siginfo_t *info, void *context)
 		ft_sizemem(signal);
 	else if (g_msg.message)
 		ft_locatemsg(signal);
+	usleep(10);
 }
 
 int	main(void)
@@ -85,7 +93,7 @@ int	main(void)
 	while (1)
 	{
 		pause ();
-		usleep(50);
+		//usleep(700);
 		kill(g_msg.client_pid, SIGUSR2);
 	}
 	return (0);

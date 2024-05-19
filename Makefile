@@ -16,11 +16,11 @@ OBJSS =			$(SRCSS:.c=.o)
 B_OBJSC =		$(SRCSC_B:.c=.o)
 B_OBJSS =		$(SRCSS_B:.c=.o)
 
-FTLIBFT =		../libft
-LIBFT = 		../libft/libft.a
+FTLIBFT =		./libft
+LIBFT = 		./libft/libft.a
 
-FTPRINTF =		../ftPrintf
-PRINTF = 		../ftPrintf/libftprintf.a
+FTPRINTF =		./ftPrintf
+PRINTF = 		./ftPrintf/libftprintf.a
 
 RM =			rm -f
 

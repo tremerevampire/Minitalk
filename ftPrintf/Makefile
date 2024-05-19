@@ -1,9 +1,9 @@
 NAME = 		libftprintf.a
 CC = 		gcc
-CFLAGS = 	-Wall -Werror -Wextra -Wunused-variable
+CFLAGS = 	-Wall -Werror -Wextra #-Wunused-variable
 SRCS = ft_printf.c ft_putchar.c \
        ft_putnbr.c ft_putstr.c \
-       ft_strlen.c \
+       ft_strlenprint.c \
 
 OBJS = 		$(SRCS:.c=.o)
 

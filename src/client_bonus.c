@@ -6,7 +6,7 @@
 /*   By: acastejo <acastejo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/02 13:01:41 by acastejo          #+#    #+#             */
-/*   Updated: 2024/05/14 14:43:58 by acastejo         ###   ########.fr       */
+/*   Updated: 2024/05/18 17:17:45 by acastejo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void	ft_feedback(int signal, siginfo_t *info, void *context)
 	(void)context;
 	(void)info;
 	if (signal == SIGUSR1)
-		ft_printf("Message sended\n");
+		write(1, "Message sended\n", 15);
 }
 
 void	ft_encrypt(unsigned char c, pid_t pid)
@@ -38,7 +38,7 @@ void	ft_encrypt(unsigned char c, pid_t pid)
 				exit (ft_printf("Invalid pid\n"));
 		}
 		pause();
-		usleep(5);
+		usleep(200);
 	}
 }
 
@@ -72,7 +72,7 @@ void	ft_sendmsg(char const *str, pid_t pid)
 	while (str[i])
 	{
 		ft_encrypt(str[i], pid);
-		i++;
+		ft_printf("%i\n", i++);
 	}
 }
 
