@@ -6,7 +6,7 @@
 /*   By: acastejo <acastejo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/02 13:01:41 by acastejo          #+#    #+#             */
-/*   Updated: 2024/05/18 17:17:45 by acastejo         ###   ########.fr       */
+/*   Updated: 2024/05/27 18:36:17 by acastejo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,7 @@ void	ft_encrypt(unsigned char c, pid_t pid)
 			if (kill(pid, SIGUSR2) == -1)
 				exit (ft_printf("Invalid pid\n"));
 		}
-		pause();
-		usleep(50);
+		usleep(1200);
 	}
 }
 
@@ -60,7 +59,7 @@ void	ft_sendlen(size_t len, pid_t pid)
 			if (kill(pid, SIGUSR2) == -1)
 				exit (ft_printf("Invalid pid\n"));
 		}
-		pause ();
+		usleep (500);
 	}
 }
 
@@ -69,8 +68,9 @@ void	ft_sendmsg(char const *str, pid_t pid)
 	int	i;
 
 	i = 0;
-	while (str[i++])
-		ft_encrypt(str[i], pid);
+	while (str[i])
+		ft_encrypt(str[i++], pid);
+
 }
 
 int	main(int argc, char **argv)
