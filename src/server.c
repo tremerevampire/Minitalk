@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: acastejo <acastejo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/02 13:01:33 by acastejo          #+#    #+#             */
-/*   Updated: 2024/05/17 18:52:53 by acastejo         ###   ########.fr       */
+/*   Created: 2024/04/02 13:01:01 by acastejo          #+#    #+#             */
+/*   Updated: 2024/05/28 16:48:57 by acastejo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,15 @@ t_msg	g_msg;
 void	ft_message(void)
 {
 	write(1, g_msg.str, g_msg.size);
+	write(1, "\n", 1);
 	g_msg.bit = 0;
 	g_msg.c = 0;
 	g_msg.i = 0;
-	g_msg.size = 0;
 	free(g_msg.str);
 	g_msg.str = NULL;
 	g_msg.message = 0;
+	g_msg.size = 0;
+	kill(g_msg.client_pid, SIGUSR1);
 }
 
 void	ft_sizemem(int signal)
@@ -43,7 +45,7 @@ void	ft_sizemem(int signal)
 void	ft_locatemsg(int signal)
 {
 	if (!g_msg.str)
-		g_msg.str = (char *)ft_calloc(g_msg.size, sizeof(char));
+		g_msg.str = (char *)ft_calloc(g_msg.size + 1, sizeof(char));
 	if (signal == SIGUSR1)
 		g_msg.c = g_msg.c << 1 | 0x01;
 	else if (signal == SIGUSR2)
@@ -59,8 +61,15 @@ void	ft_locatemsg(int signal)
 	}
 }
 
-void	ft_decod(int signal)
+void	ft_decod(int signal, siginfo_t *info, void *context)
 {
+	(void)context;
+	if (g_msg.client_pid != info->si_pid)
+	{
+		g_msg.client_pid = info->si_pid;
+		g_msg.size = 0;
+		g_msg.message = 0;
+	}
 	if (!g_msg.message)
 		ft_sizemem(signal);
 	else if (g_msg.message)
@@ -69,12 +78,16 @@ void	ft_decod(int signal)
 
 int	main(void)
 {
+	struct sigaction	sa;
+
 	ft_printf("PID: [ %i ] \n", getpid());
-	signal(SIGUSR1, ft_decod);
-	signal(SIGUSR2, ft_decod);
+	sa.sa_sigaction = ft_decod;
+	sigaction(SIGUSR1, &sa, NULL);
+	sigaction(SIGUSR2, &sa, NULL);
 	while (1)
 	{
 		pause ();
+		kill(g_msg.client_pid, SIGUSR2);
 	}
 	return (0);
 }
