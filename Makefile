@@ -22,11 +22,15 @@ RM =			rm -f
 all : 		$(LIBFT) $(PRINTF) $(NAMEC) $(NAMES)
 
 $(LIBFT) :	
+			@echo "Compiling LIBFT"
 			@make -C $(FTLIBFT)
 			@make bonus -C $(FTLIBFT)
+			@echo "Done"
 
 $(PRINTF) :
+			@echo "Compiling FTPRINTF"
 			@make -C $(FTPRINTF)
+			@echo "Done"
 
 $(NAMEC) : 	$(OBJSC)
 			@echo "Compiling client..."
